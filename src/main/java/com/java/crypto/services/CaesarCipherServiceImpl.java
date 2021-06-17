@@ -9,11 +9,35 @@ public class CaesarCipherServiceImpl implements CaesarCipherService {
 
     @Override
     public String cipher(String openText, Integer shift, String alphabet) {
-        return null;
+        openText = openText.toUpperCase();
+        alphabet = alphabet.toUpperCase();
+        
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < openText.length(); ++i) {
+            if(Character.isWhitespace(openText.charAt(i))) {
+                sb.append(openText.charAt(i));
+            } else {
+                sb.append(alphabet.charAt((alphabet.indexOf(openText.charAt(i)) + shift) % alphabet.length()));
+            }
+            
+        }
+        return sb.toString();
     }
 
     @Override
-    public String decipher(String cipher, String alphabet) {
+    public String decipher(String cipher, Integer shift, String alphabet) {
+        cipher = cipher.toUpperCase();
+        alphabet = alphabet.toUpperCase();
+        
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < cipher.length(); ++i) {
+            if(Character.isWhitespace(cipher.charAt(i))) {
+                sb.append(cipher.charAt(i));
+            } else {
+                
+            }
+        }
+        
         return null;
     }
 }

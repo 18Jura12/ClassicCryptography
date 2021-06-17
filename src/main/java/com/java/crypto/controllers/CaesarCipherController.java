@@ -28,8 +28,8 @@ public class CaesarCipherController {
 
     @GetMapping
     @RequestMapping("/decipher")
-    public ResponseEntity<String> caesarDecipher(@RequestBody String cipher, @PathVariable("alphabet") String alphabet) {
-        String response = caesarCipherService.decipher(cipher, alphabet);
+    public ResponseEntity<String> caesarDecipher(@RequestBody String cipher, @PathVariable("shift") Integer shift, @PathVariable("alphabet") String alphabet) {
+        String response = caesarCipherService.decipher(cipher, shift, alphabet);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

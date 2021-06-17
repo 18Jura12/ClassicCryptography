@@ -23,7 +23,7 @@ public class CryptoApplication {
 	}
 
 	@PostConstruct
-	public void initializationDev() throws ParseException {
+	public void initializationDev() throws Exception {
 
 		InitializeService initializeService = (InitializeService) ctx.getBean("InitializeService");
 		initializeService.initialize();

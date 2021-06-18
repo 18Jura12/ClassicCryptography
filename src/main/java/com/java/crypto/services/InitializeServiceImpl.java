@@ -4,16 +4,11 @@ import com.java.crypto.domain.Word;
 import com.java.crypto.repositories.WordRepository;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.extern.slf4j.Slf4j;
-import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
 
 @Slf4j
 @Service("InitializeService")
@@ -28,7 +23,7 @@ public class InitializeServiceImpl implements InitializeService {
 
     @Override
     public void initialize() throws Exception{
-        log.info("initializing database...");
+        log.info("Initializing database...");
         Path path = Paths.get("src/main/resources/rjecnik.txt");
 
         BufferedReader reader = null;
@@ -45,6 +40,6 @@ public class InitializeServiceImpl implements InitializeService {
             wordRepository.save(word);                
         }
         
-        log.info("database initialized");
+        log.info("Database initialized.");
     }
 }

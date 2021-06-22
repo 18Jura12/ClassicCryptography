@@ -1,6 +1,8 @@
 package com.java.crypto.services;
 
 import java.util.LinkedHashSet;
+
+import com.java.crypto.domain.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,7 @@ public class PlayfairCipherServiceImpl implements PlayfairCipherService {
     public char[][] matrix;
 
     @Override
-    public String cipher(String openText, String key, String language) {
+    public Result cipher(String openText, String key, String language) {
         openText = openText.toUpperCase();
         key = key.toUpperCase();
         
@@ -55,11 +57,11 @@ public class PlayfairCipherServiceImpl implements PlayfairCipherService {
             }
         }
         
-        return builder.toString();
+        return new Result(builder.toString());
     }
 
     @Override
-    public String decipher(String cipher, String key, String language) {
+    public Result decipher(String cipher, String key, String language) {
         cipher = cipher.toUpperCase();
         key = key.toUpperCase();
         
@@ -97,7 +99,7 @@ public class PlayfairCipherServiceImpl implements PlayfairCipherService {
             }
         }
         
-        return builder.toString();
+        return new Result(builder.toString());
     }
     
     /*

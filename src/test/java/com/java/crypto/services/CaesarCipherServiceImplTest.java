@@ -30,7 +30,7 @@ public class CaesarCipherServiceImplTest {
         CaesarCipherServiceImpl instance = new CaesarCipherServiceImpl();
         String expResult = "ŽGH  ABC";
         
-        String result = instance.cipher(openText, shift, alphabet);
+        String result = instance.cipher(openText, shift, alphabet).getResult();
         assertEquals(expResult, result);
         
         
@@ -40,7 +40,7 @@ public class CaesarCipherServiceImplTest {
         expResult = "AZLAB ZXBPXO";
         alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         
-        result = instance.cipher(openText, shift, alphabet);
+        result = instance.cipher(openText, shift, alphabet).getResult();
         assertEquals(expResult, result);
     }
 
@@ -57,7 +57,7 @@ public class CaesarCipherServiceImplTest {
         CaesarCipherServiceImpl instance = new CaesarCipherServiceImpl();
         String expResult = "DCODE CAESAR";
         
-        String result = instance.decipher(cipher, shift, alphabet);
+        String result = instance.decipher(cipher, shift, alphabet).getResult();
         assertEquals(expResult, result);
         
         
@@ -66,7 +66,7 @@ public class CaesarCipherServiceImplTest {
         shift = -2;
         expResult = "CDE  FGH";
         
-        result = instance.decipher(cipher, shift, alphabet);
+        result = instance.decipher(cipher, shift, alphabet).getResult();
         assertEquals(expResult, result);
     }
 

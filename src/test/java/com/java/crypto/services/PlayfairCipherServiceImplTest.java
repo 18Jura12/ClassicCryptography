@@ -28,7 +28,7 @@ public class PlayfairCipherServiceImplTest {
         String language = "ENGLISH";
         PlayfairCipherServiceImpl instance = new PlayfairCipherServiceImpl();
         String expResult = "DBFLNQOGYLKA";
-        String result = instance.cipher(openText, key, language);
+        String result = instance.cipher(openText, key, language).getResult();
         assertEquals(expResult, result);
     }
 
@@ -43,14 +43,14 @@ public class PlayfairCipherServiceImplTest {
         String language = "ENGLISH";
         PlayfairCipherServiceImpl instance = new PlayfairCipherServiceImpl();
         String expResult = "CRYPTOGRAPHY";
-        String result = instance.decipher(cipher, key, language);
+        String result = instance.decipher(cipher, key, language).getResult();
         assertEquals(expResult, result);
         
         cipher = "CKFLETIJKSVIXGIEQOSAGAPLTEAUKHCAETAFCKTO";
         key = "TAJNOPIS";
         language = "CROATIAN";
         expResult = "PREMDASAMPLAYFAIRNIJENIKADTVRDIODAJEPRON";
-        result = instance.decipher(cipher, key, language);
+        result = instance.decipher(cipher, key, language).getResult();
         assertEquals(expResult, result);
     }
 

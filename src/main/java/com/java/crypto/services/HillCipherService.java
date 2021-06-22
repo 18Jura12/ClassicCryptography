@@ -1,9 +1,11 @@
 package com.java.crypto.services;
 
+import com.java.crypto.domain.Result;
+
 import java.util.List;
 
 public interface HillCipherService {
-    String cipher(String openText, Integer[][] key, String alphabet);
-    String decipher(String cipher, Integer[][] key, String alphabet);
-    List<String> decipherWithoutKey(String cipher);
+    Result cipher(String openText, Integer[][] key, String alphabet);
+    Result decipher(String cipher, Integer[][] key, String alphabet);
+    List<Result> decipherWithoutKey(String cipher);
 }

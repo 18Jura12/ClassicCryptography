@@ -1,5 +1,6 @@
 package com.java.crypto.services;
 
+import com.java.crypto.domain.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,17 +17,17 @@ public class HillCipherServiceImpl implements HillCipherService {
     }
 
     @Override
-    public String cipher(String openText, Integer[][] key, String alphabet) {
+    public Result cipher(String openText, Integer[][] key, String alphabet) {
         return null;
     }
 
     @Override
-    public String decipher(String cipher, Integer[][] key, String alphabet) {
+    public Result decipher(String cipher, Integer[][] key, String alphabet) {
         return null;
     }
 
     @Override
-    public List<String> decipherWithoutKey(String cipher) {
+    public List<Result> decipherWithoutKey(String cipher) {
         return null;
     }
 }

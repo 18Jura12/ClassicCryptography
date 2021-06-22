@@ -1,6 +1,8 @@
 package com.java.crypto.services;
 
 import java.io.IOException;
+
+import com.java.crypto.domain.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class CaesarCipherServiceImpl implements CaesarCipherService {
 
     @Override
-    public String cipher(String openText, Integer shift, String alphabet) throws IOException {
+    public Result cipher(String openText, Integer shift, String alphabet) throws IOException {
         openText = openText.toUpperCase();
         alphabet = alphabet.toUpperCase();
         
@@ -28,11 +30,11 @@ public class CaesarCipherServiceImpl implements CaesarCipherService {
             }
         }
         
-        return sb.toString();
+        return new Result(sb.toString());
     }
 
     @Override
-    public String decipher(String cipher, Integer shift, String alphabet) throws IOException{
+    public Result decipher(String cipher, Integer shift, String alphabet) throws IOException{
         cipher = cipher.toUpperCase();
         alphabet = alphabet.toUpperCase();
         
@@ -51,7 +53,7 @@ public class CaesarCipherServiceImpl implements CaesarCipherService {
             }
         }
         
-        return sb.toString();
+        return new Result(sb.toString());
     }
     
     public boolean validateInput(String input, String alphabet) {

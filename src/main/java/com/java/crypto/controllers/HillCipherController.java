@@ -1,5 +1,6 @@
 package com.java.crypto.controllers;
 
+import com.java.crypto.domain.Result;
 import com.java.crypto.services.HillCipherService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,24 +23,24 @@ public class HillCipherController {
 
     @GetMapping
     @RequestMapping("/cipher")
-    public ResponseEntity<String> hillCipher(@RequestBody String openText, @PathVariable("key")Integer[][] key, @PathVariable("alphabet") String alphabet) {
-        String response = hillCipherService.cipher(openText, key, alphabet);
+    public ResponseEntity<Result> hillCipher(@RequestParam String openText, @RequestParam Integer[][] key, @RequestParam String alphabet) {
+        Result response = hillCipherService.cipher(openText, key, alphabet);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping
     @RequestMapping("/decipher")
-    public ResponseEntity<String> hillDecipher(@RequestBody String cipher, @PathVariable("key")Integer[][] key, @PathVariable("alphabet") String alphabet) {
-        String response = hillCipherService.decipher(cipher, key, alphabet);
+    public ResponseEntity<Result> hillDecipher(@RequestParam String cipher, @RequestParam Integer[][] key, @RequestParam String alphabet) {
+        Result response = hillCipherService.decipher(cipher, key, alphabet);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping
     @RequestMapping("/decipherNoKey")
-    public ResponseEntity<List<String>> hillDecipher(@RequestBody String cipher) {
-        List<String> response = hillCipherService.decipherWithoutKey(cipher);
+    public ResponseEntity<List<Result>> hillDecipher(@RequestParam String cipher) {
+        List<Result> response = hillCipherService.decipherWithoutKey(cipher);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

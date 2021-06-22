@@ -20,16 +20,16 @@ public class PlayfairCipherController {
 
     @GetMapping
     @RequestMapping("/cipher")
-    public ResponseEntity<String> playfairCipher(@RequestBody String openText, @PathVariable("key")String key, @PathVariable("alphabet") String alphabet) {
-        String response = playfairCipherService.cipher(openText, key, alphabet);
+    public ResponseEntity<String> playfairCipher(@RequestBody String openText, @PathVariable("key")String key, @PathVariable("language") String language) {
+        String response = playfairCipherService.cipher(openText, key, language);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping
     @RequestMapping("/decipher")
-    public ResponseEntity<String> playfairDecipher(@RequestBody String cipher, @PathVariable("key")String key, @PathVariable("alphabet") String alphabet) {
-        String response = playfairCipherService.decipher(cipher, key, alphabet);
+    public ResponseEntity<String> playfairDecipher(@RequestBody String cipher, @PathVariable("key")String key, @PathVariable("language") String language) {
+        String response = playfairCipherService.decipher(cipher, key, language);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

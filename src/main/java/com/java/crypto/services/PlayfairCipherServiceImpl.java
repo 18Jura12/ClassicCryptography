@@ -3,6 +3,8 @@ package com.java.crypto.services;
 import java.util.LinkedHashSet;
 
 import com.java.crypto.domain.Result;
+import com.java.crypto.util.Util;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +21,17 @@ public class PlayfairCipherServiceImpl implements PlayfairCipherService {
     public char[][] matrix;
 
     @Override
-    public Result cipher(String openText, String key, String language) {
+    public Result cipher(String openText, String key, String language) throws IOException{
         openText = openText.toUpperCase();
         key = key.toUpperCase();
+        
+        if(!Util.validateInput(openText, ALPHABET)) {
+            throw new IOException("Characters in input do not match the alphabet.");
+        }
+        
+        if(!Util.validateInput(key, ALPHABET)) {
+            throw new IOException("Characters in key do not match the alphabet.");
+        }
         
         openText = removeWhiteSpaces(openText); 
         key = removeWhiteSpaces(key);
@@ -61,9 +71,17 @@ public class PlayfairCipherServiceImpl implements PlayfairCipherService {
     }
 
     @Override
-    public Result decipher(String cipher, String key, String language) {
+    public Result decipher(String cipher, String key, String language) throws IOException{
         cipher = cipher.toUpperCase();
         key = key.toUpperCase();
+        
+        if(!Util.validateInput(cipher, ALPHABET)) {
+            throw new IOException("Characters in input do not match the alphabet.");
+        }
+        
+        if(!Util.validateInput(key, ALPHABET)) {
+            throw new IOException("Characters in key do not match the alphabet.");
+        }
         
         cipher = removeWhiteSpaces(cipher); 
         key = removeWhiteSpaces(key);

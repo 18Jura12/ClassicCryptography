@@ -70,25 +70,5 @@ public class CaesarCipherServiceImplTest {
         assertEquals(expResult, result);
     }
 
-    /**
-     * Test of validateInput method, of class CaesarCipherServiceImpl.
-     */
-    @Test
-    public void testValidateInput() {
-        System.out.println("validateInput");
-        String input = "ANA KARENJINA";
-        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        CaesarCipherServiceImpl instance = new CaesarCipherServiceImpl();
-        boolean expResult = true;
-        boolean result = instance.validateInput(input, alphabet);
-        assertEquals(expResult, result);
-        
-        
-        //Second example
-        input = "AŽSTVA";
-        expResult = false;
-        result = instance.validateInput(input, alphabet);
-        assertEquals(expResult, result);
-    }
     
 }

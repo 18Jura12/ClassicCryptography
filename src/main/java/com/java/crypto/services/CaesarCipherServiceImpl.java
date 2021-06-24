@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.java.crypto.domain.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import com.java.crypto.util.Util;
 
 @Slf4j
 @Service
@@ -15,8 +16,8 @@ public class CaesarCipherServiceImpl implements CaesarCipherService {
         openText = openText.toUpperCase();
         alphabet = alphabet.toUpperCase();
         
-        if(!validateInput(openText, alphabet)) {
-            throw new IOException("Characters in input do not match the alphabet.");
+        if(!Util.validateInput(openText, alphabet)) {
+            throw new IOException("Characters in input do not match characters in alphabet.");
         }
         
         StringBuilder sb = new StringBuilder();
@@ -38,7 +39,7 @@ public class CaesarCipherServiceImpl implements CaesarCipherService {
         cipher = cipher.toUpperCase();
         alphabet = alphabet.toUpperCase();
         
-        if(!validateInput(cipher, alphabet)) {
+        if(!Util.validateInput(cipher, alphabet)) {
             throw new IOException("Characters in input do not match the alphabet.");
         }
         
@@ -54,18 +55,5 @@ public class CaesarCipherServiceImpl implements CaesarCipherService {
         }
         
         return new Result(sb.toString());
-    }
-    
-    public boolean validateInput(String input, String alphabet) {
-        log.info("Validate input.");
-        for(int i = 0; i < input.length(); ++i) {
-            if(!alphabet.contains(Character.toString(input.charAt(i))) && !Character.isWhitespace(input.charAt(i))) {
-                log.info("Input incorrect.");
-                return false;
-            }
-        }
-        
-        log.info("Input correct.");
-        return true;
     }
 }

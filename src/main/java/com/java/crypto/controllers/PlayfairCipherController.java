@@ -1,6 +1,6 @@
 package com.java.crypto.controllers;
 
-import com.java.crypto.domain.Result;
+import com.java.crypto.domain.ExtendedResult;
 import com.java.crypto.services.PlayfairCipherService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,8 +21,8 @@ public class PlayfairCipherController {
 
     @GetMapping
     @RequestMapping("/cipher")
-    public ResponseEntity<Result> playfairCipher(@RequestParam String openText, @RequestParam String key, @RequestParam String language) {
-        Result response;
+    public ResponseEntity<ExtendedResult> playfairCipher(@RequestParam String openText, @RequestParam String key, @RequestParam String language) {
+        ExtendedResult response;
         
         try{
             response = playfairCipherService.cipher(openText, key, language);
@@ -37,8 +37,8 @@ public class PlayfairCipherController {
 
     @GetMapping
     @RequestMapping("/decipher")
-    public ResponseEntity<Result> playfairDecipher(@RequestParam String cipher, @RequestParam String key, @RequestParam String language) {
-        Result response;
+    public ResponseEntity<ExtendedResult> playfairDecipher(@RequestParam String cipher, @RequestParam String key, @RequestParam String language) {
+        ExtendedResult response;
         
         try{
             response = playfairCipherService.decipher(cipher, key, language);

@@ -13,11 +13,11 @@ public class CryptoApplication {
 
 	private final ApplicationContext ctx;
         
-        public native void helloC();
+        /*public native void helloC();
     
         static {
             System.loadLibrary("MatrixOperations");
-        }
+        }*/
 
 	public CryptoApplication(ApplicationContext ctx) {
 		this.ctx = ctx;

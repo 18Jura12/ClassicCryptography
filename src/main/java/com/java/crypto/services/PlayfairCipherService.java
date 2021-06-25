@@ -1,9 +1,9 @@
 package com.java.crypto.services;
 
-import com.java.crypto.domain.Result;
+import com.java.crypto.domain.ExtendedResult;
 import java.io.IOException;
 
 public interface PlayfairCipherService {
-    Result cipher(String openText, String key, String language) throws IOException;
-    Result decipher(String cipher, String key, String language) throws IOException;
+    ExtendedResult cipher(String openText, String key, String language) throws IOException;
+    ExtendedResult decipher(String cipher, String key, String language) throws IOException;
 }

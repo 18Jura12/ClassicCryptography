@@ -2,7 +2,7 @@ package com.java.crypto.services;
 
 import java.util.LinkedHashSet;
 
-import com.java.crypto.domain.Result;
+import com.java.crypto.domain.ExtendedResult;
 import com.java.crypto.util.Util;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class PlayfairCipherServiceImpl implements PlayfairCipherService {
     public char[][] matrix;
 
     @Override
-    public Result cipher(String openText, String key, String language) throws IOException{
+    public ExtendedResult cipher(String openText, String key, String language) throws IOException{
         openText = openText.toUpperCase();
         key = key.toUpperCase();
         
@@ -67,11 +67,11 @@ public class PlayfairCipherServiceImpl implements PlayfairCipherService {
             }
         }
         
-        return new Result(builder.toString());
+        return new ExtendedResult(builder.toString(), matrix);
     }
 
     @Override
-    public Result decipher(String cipher, String key, String language) throws IOException{
+    public ExtendedResult decipher(String cipher, String key, String language) throws IOException{
         cipher = cipher.toUpperCase();
         key = key.toUpperCase();
         
@@ -117,7 +117,7 @@ public class PlayfairCipherServiceImpl implements PlayfairCipherService {
             }
         }
         
-        return new Result(builder.toString());
+        return new ExtendedResult(builder.toString(), matrix);
     }
     
     /*

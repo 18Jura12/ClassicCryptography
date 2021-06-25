@@ -23,15 +23,23 @@ public class HillCipherController {
 
     @GetMapping
     @RequestMapping("/cipher")
-    public ResponseEntity<Result> hillCipher(@RequestParam String openText, @RequestParam Integer[][] key, @RequestParam String alphabet) {
-        Result response = hillCipherService.cipher(openText, key, alphabet);
+    public ResponseEntity<Result> hillCipher(@RequestParam String openText, @RequestParam double[][] key, @RequestParam String alphabet) {
+        Result response;
+        
+        try{
+            response = hillCipherService.cipher(openText, key, alphabet);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch(Exception e){
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+        //Result response = hillCipherService.cipher(openText, key, alphabet);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        //return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping
     @RequestMapping("/decipher")
-    public ResponseEntity<Result> hillDecipher(@RequestParam String cipher, @RequestParam Integer[][] key, @RequestParam String alphabet) {
+    public ResponseEntity<Result> hillDecipher(@RequestParam String cipher, @RequestParam double[][] key, @RequestParam String alphabet) {
         Result response = hillCipherService.decipher(cipher, key, alphabet);
 
         return new ResponseEntity<>(response, HttpStatus.OK);

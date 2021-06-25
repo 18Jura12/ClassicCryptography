@@ -21,7 +21,7 @@ public class PlayfairCipherServiceImplTest {
      * Test of cipher method, of class PlayfairCipherServiceImpl.
      */
     @Test
-    public void testCipher() {
+    public void testCipher() throws Exception{
         System.out.println("cipher");
         String openText = "CRYPTOGRAPHY";
         String key = "PLAYFAIR";
@@ -36,7 +36,7 @@ public class PlayfairCipherServiceImplTest {
      * Test of decipher method, of class PlayfairCipherServiceImpl.
      */
     @Test
-    public void testDecipher() {
+    public void testDecipher() throws Exception{
         System.out.println("decipher");
         String cipher = "DBFLNQOGYLKA";
         String key = "PLAYFAIR";

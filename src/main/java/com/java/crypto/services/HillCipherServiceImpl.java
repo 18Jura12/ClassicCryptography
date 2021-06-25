@@ -3,10 +3,13 @@ package com.java.crypto.services;
 import com.java.crypto.domain.Result;
 import com.java.crypto.util.Util;
 import java.io.IOException;
+import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import Jama.LUDecomposition;
+import Jama.Matrix;
 
 @Slf4j
 @Service
@@ -18,9 +21,11 @@ public class HillCipherServiceImpl implements HillCipherService {
     public HillCipherServiceImpl(WordService wordService) {
         this.wordService = wordService;
     }
+    
+    
 
     @Override
-    public Result cipher(String openText, Integer[][] key, String alphabet) throws IOException{
+    public Result cipher(String openText, double[][] key, String alphabet) throws IOException{
         openText = openText.toUpperCase();
         alphabet = alphabet.toUpperCase();
         
@@ -38,7 +43,7 @@ public class HillCipherServiceImpl implements HillCipherService {
     }
 
     @Override
-    public Result decipher(String cipher, Integer[][] key, String alphabet) {
+    public Result decipher(String cipher, double[][] key, String alphabet) {
         return null;
     }
 
@@ -59,5 +64,19 @@ public class HillCipherServiceImpl implements HillCipherService {
             }
         }
         return builder.toString();
+    }
+    
+    public double[][] inverse(double[][] input) {
+        double[] vector = new double[input.length];
+        Arrays.fill(vector, 1);
+        
+        Matrix matrix = new Matrix(input);
+        LUDecomposition luDecomposition = new LUDecomposition(matrix);
+        Matrix identity = new Matrix(vector, vector.length);
+        Matrix inverseMatrix = luDecomposition.solve(identity);
+        
+        double returnValues[][] = inverseMatrix.inverse().getArray();
+        
+        return returnValues;
     }
 }

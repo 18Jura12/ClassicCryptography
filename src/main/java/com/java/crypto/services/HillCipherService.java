@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface HillCipherService {
-    Result cipher(String openText, Integer[][] key, String alphabet) throws IOException;
-    Result decipher(String cipher, Integer[][] key, String alphabet);
+    Result cipher(String openText, double[][] key, String alphabet) throws IOException;
+    Result decipher(String cipher, double[][] key, String alphabet);
     List<Result> decipherWithoutKey(String cipher);
 }

@@ -22,16 +22,32 @@ public class PlayfairCipherController {
     @GetMapping
     @RequestMapping("/cipher")
     public ResponseEntity<Result> playfairCipher(@RequestParam String openText, @RequestParam String key, @RequestParam String language) {
-        Result response = playfairCipherService.cipher(openText, key, language);
+        Result response;
+        
+        try{
+            response = playfairCipherService.cipher(openText, key, language);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch(Exception e){
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+        //Result response = playfairCipherService.cipher(openText, key, language);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        //return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping
     @RequestMapping("/decipher")
     public ResponseEntity<Result> playfairDecipher(@RequestParam String cipher, @RequestParam String key, @RequestParam String language) {
-        Result response = playfairCipherService.decipher(cipher, key, language);
+        Result response;
+        
+        try{
+            response = playfairCipherService.decipher(cipher, key, language);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch(Exception e){
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+        //Result response = playfairCipherService.decipher(cipher, key, language);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        //return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

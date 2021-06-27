@@ -30,10 +30,19 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(IOException.class)
-    ResponseEntity<Object> handleValidation(IOException ex) {
+    ResponseEntity<Object> handleIO(IOException ex) {
 
         log.error("Handling IOException: " + ex.getLocalizedMessage());
         return new ResponseEntity<>(ex.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
 
     }
+
+    @ExceptionHandler(Exception.class)
+    ResponseEntity<Object> handle(Exception ex) {
+
+        log.error("Handling IOException: " + ex.getLocalizedMessage());
+        return new ResponseEntity<>(ex.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
+
+    }
+
 }

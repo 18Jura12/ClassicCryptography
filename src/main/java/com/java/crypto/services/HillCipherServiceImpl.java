@@ -1,10 +1,9 @@
 package com.java.crypto.services;
 
 import com.java.crypto.domain.Result;
+import com.java.crypto.jni.HillJni;
 import com.java.crypto.util.Util;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,6 @@ public class HillCipherServiceImpl implements HillCipherService {
     public HillCipherServiceImpl(WordService wordService) {
         this.wordService = wordService;
     }
-    
 
     @Override
     public Result cipher(String openText, int[][] key, String alphabet) throws IOException{
@@ -340,5 +338,10 @@ public class HillCipherServiceImpl implements HillCipherService {
         }
         
         return 0;
+    }
+
+    public int[][] multiplyMatrices(int[][] A, int[][] B) {
+        System.load(System.getProperty("user.dir") + "/src/main/resources/native/hill.so");
+        return HillJni.multiplyMatrices(A, B);
     }
 }

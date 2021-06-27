@@ -7,7 +7,6 @@ package com.java.crypto.services;
 
 import com.java.crypto.domain.Result;
 import com.java.crypto.repositories.WordRepository;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -335,6 +334,13 @@ public class HillCipherServiceImplTest {
         String expResult2 = "VOLIMJAVU";
         result = instance.stringEquivalent(cipher2, alphabet);
         assertEquals(expResult2, result);
+    }
+
+    @Test
+    void testMultiplyMatrices() {
+        WordServiceImpl ws = new WordServiceImpl(wordRepository);
+        HillCipherServiceImpl instance = new HillCipherServiceImpl(ws);
+        instance.multiplyMatrices(new int[][]{}, new int[][]{});
     }
 
 }

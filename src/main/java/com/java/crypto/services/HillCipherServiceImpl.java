@@ -68,7 +68,6 @@ public class HillCipherServiceImpl implements HillCipherService {
         int[][] temp = new HillJni().multiplyMatrices(key, textMatrix, alphabet.length());
         log.info(Integer.toString(temp[0][0]));
         
-        //textMatrix = multiply(textMatrix, key, alphabet.length());
         textMatrix = new HillJni().multiplyMatrices(key, textMatrix, alphabet.length());
         String result = stringEquivalent(textMatrix, alphabet);
         result = result.substring(0, result.length() - counter);
@@ -114,7 +113,6 @@ public class HillCipherServiceImpl implements HillCipherService {
             }
         }
         
-        //textMatrix = multiply(textMatrix, inverse(key, alphabet.length()), alphabet.length());
         textMatrix = new HillJni().multiplyMatrices(inverse(key, alphabet.length()), textMatrix, alphabet.length());
         String result = stringEquivalent(textMatrix, alphabet);
         result = result.substring(0, result.length() - counter);

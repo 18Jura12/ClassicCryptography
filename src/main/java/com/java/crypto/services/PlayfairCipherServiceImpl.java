@@ -35,8 +35,11 @@ public class PlayfairCipherServiceImpl implements PlayfairCipherService {
         
         openText = removeWhiteSpaces(openText); 
         key = removeWhiteSpaces(key);
+        
+        //has to be even
         openText = processDummyChar(openText);
         openText = formatText(openText, language);
+        
         // in case IJ -> II
         openText = processDummyChar(openText);
         

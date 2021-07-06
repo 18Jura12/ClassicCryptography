@@ -26,4 +26,14 @@ public class Util {
         return true;
     }
     
+    public static boolean validateAlphabet(String alphabet) {
+        for(int i = 0; i < alphabet.length(); ++i) {
+            if(alphabet.indexOf(alphabet.charAt(i), alphabet.indexOf(alphabet.charAt(i)) + 1) > -1) {
+                return false;
+            }
+        }
+                
+        return true;
+    }
+    
 }

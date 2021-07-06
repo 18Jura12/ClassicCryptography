@@ -37,4 +37,24 @@ public class UtilTest {
         assertEquals(expResult, result);
     }
     
+    /**
+     * Test of validateAlphabet method, of class HillCipherServiceImpl.
+     */
+    @Test
+    public void testValidateAlphabet() {
+        System.out.println("validateAlphabet");
+        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";        
+        boolean expResult = true;
+        
+        boolean result = Util.validateAlphabet(alphabet);
+        assertEquals(expResult, result);
+        
+        //seconda example
+        alphabet = "ABACDEF";
+        expResult = false;
+        result = Util.validateAlphabet(alphabet);
+        assertEquals(expResult, result);
+    }
+
+    
 }

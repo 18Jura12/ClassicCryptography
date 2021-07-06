@@ -6,6 +6,7 @@
 package com.java.crypto.services;
 
 import com.java.crypto.domain.Result;
+import com.java.crypto.jni.HillJni;
 import com.java.crypto.repositories.WordRepository;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -220,7 +221,7 @@ public class HillCipherServiceImplTest {
             {12,3,8},
             {7,5,20}
         };
-        int[][] result = instance.replaceNegatives(input, modulo);
+        int[][] result = instance.replaceNegatives(input, modulo);        
         assertArrayEquals(expResult, result);
     }
 
@@ -273,38 +274,6 @@ public class HillCipherServiceImplTest {
         assertArrayEquals(expResult, result);
     }
 
-
-    /**
-     * Test of multiply method, of class HillCipherServiceImpl.
-     */
-    @Test
-    public void testMultiply() {
-        System.out.println("multiply");
-        int[][] numEquivalents = {
-            {20, 17},
-            {19, 0},
-            {14, 10}
-        };
-        int[][] key = {
-            {5, 8, 22},
-            {2, 5, 24},
-            {10, 20, 17}
-        };
-        int modulo = 26;
-        
-        WordServiceImpl ws = new WordServiceImpl(wordRepository);
-        HillCipherServiceImpl instance = new HillCipherServiceImpl(ws);
-        
-        int[][] expResult = {
-            {14, 19},
-            {3, 14},
-            {12, 2}
-        };
-        int[][] result = instance.multiply(numEquivalents, key, modulo);
-        assertArrayEquals(expResult, result);
-
-    }
-
     
     /**
      * Test of stringEquivalent method, of class HillCipherServiceImpl.
@@ -335,13 +304,6 @@ public class HillCipherServiceImplTest {
         String expResult2 = "VOLIMJAVU";
         result = instance.stringEquivalent(cipher2, alphabet);
         assertEquals(expResult2, result);
-    }
-
-    @Test
-    void testMultiplyMatrices() {
-        WordServiceImpl ws = new WordServiceImpl(wordRepository);
-        HillCipherServiceImpl instance = new HillCipherServiceImpl(ws);
-        instance.multiplyMatrices(new int[][]{}, new int[][]{});
     }
 
     @Test

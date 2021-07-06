@@ -30,6 +30,10 @@ public class HillCipherServiceImpl implements HillCipherService {
     private static final int NUMBER_OF_KEYS = ((MAX_MATRIX_VALUE)*(MAX_MATRIX_VALUE+3)*(MAX_MATRIX_VALUE+2)*(MAX_MATRIX_VALUE+1))/(2*3*4);
     
     public int[][] adjMatrix;
+    static {
+        System.load(System.getProperty("user.dir") + "/src/main/resources/native/libhill.so");
+    }
+    
 
     public HillCipherServiceImpl(WordService wordService) {
         this.wordService = wordService;
@@ -37,6 +41,8 @@ public class HillCipherServiceImpl implements HillCipherService {
 
     @Override
     public Result cipher(String openText, int[][] key, String alphabet) throws IOException{
+        System.load(System.getProperty("user.dir") + "/src/main/resources/native/libhill.so");
+        
         openText = openText.toUpperCase();
         alphabet = alphabet.toUpperCase();
         int counter = 0;
@@ -47,6 +53,10 @@ public class HillCipherServiceImpl implements HillCipherService {
         
         openText = removeWhiteSpaces(openText);
         alphabet = removeWhiteSpaces(alphabet);
+        
+        if(!Util.validateAlphabet(alphabet)) {
+            throw new IOException("Alphabet contains same letters.");
+        }
         
         key = replaceNegatives(key, alphabet.length());
         
@@ -66,15 +76,22 @@ public class HillCipherServiceImpl implements HillCipherService {
             }
         }
         
-        textMatrix = multiply(textMatrix, key, alphabet.length());
+        log.info("temp");
+        
+        int[][] temp = new HillJni().multiplyMatrices(key, textMatrix, alphabet.length());
+        log.info(Integer.toString(temp[0][0]));
+        
+        //textMatrix = multiply(textMatrix, key, alphabet.length());
+        textMatrix = new HillJni().multiplyMatrices(key, textMatrix, alphabet.length());
         String result = stringEquivalent(textMatrix, alphabet);
         result = result.substring(0, result.length() - counter);
-        
+
         return new Result(result);
     }
 
     @Override
     public Result decipher(String cipher, int[][] key, String alphabet) throws Exception{
+        
         cipher = cipher.toUpperCase();
         alphabet = alphabet.toUpperCase();
         int counter = 0;
@@ -85,6 +102,10 @@ public class HillCipherServiceImpl implements HillCipherService {
         
         cipher = removeWhiteSpaces(cipher);
         alphabet = removeWhiteSpaces(alphabet);
+        
+        if(!Util.validateAlphabet(alphabet)) {
+            throw new IOException("Alphabet contains same letters.");
+        }
         
         key = replaceNegatives(key, alphabet.length());
         
@@ -104,7 +125,8 @@ public class HillCipherServiceImpl implements HillCipherService {
             }
         }
         
-        textMatrix = multiply(textMatrix, inverse(key, alphabet.length()), alphabet.length());
+        //textMatrix = multiply(textMatrix, inverse(key, alphabet.length()), alphabet.length());
+        textMatrix = new HillJni().multiplyMatrices(inverse(key, alphabet.length()), textMatrix, alphabet.length());
         String result = stringEquivalent(textMatrix, alphabet);
         result = result.substring(0, result.length() - counter);
         
@@ -306,7 +328,7 @@ public class HillCipherServiceImpl implements HillCipherService {
     }
     
     /*
-    Creates modular matrix inverse.
+    Creates modular matrix inverse (no negative numbers are result).
     */
     public int[][] inverse(int[][] input, int modulo) throws Exception{
         int n = input.length;
@@ -414,7 +436,7 @@ public class HillCipherServiceImpl implements HillCipherService {
     /*
     Replaces negative number in given matrix with positive ones modulo 'modulo'.
     */
-    public int[][] replaceNegatives(int[][] input, int modulo) {
+    public int[][] replaceNegatives(int[][] input, int modulo) {        
         for(int i = 0; i < input.length; ++i) {
             for(int j = 0; j < input[i].length; ++j) {
                 if(input[i][j] < 0) {
@@ -422,7 +444,7 @@ public class HillCipherServiceImpl implements HillCipherService {
                 }
             }
         }
-        
+
         return input;
     }
     
@@ -438,8 +460,4 @@ public class HillCipherServiceImpl implements HillCipherService {
         return 0;
     }
 
-    public int[][] multiplyMatrices(int[][] A, int[][] B) {
-        System.load(System.getProperty("user.dir") + "/src/main/resources/native/hill.so");
-        return HillJni.multiplyMatrices(A, B);
-    }
 }

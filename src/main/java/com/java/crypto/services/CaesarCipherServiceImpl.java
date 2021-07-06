@@ -20,6 +20,10 @@ public class CaesarCipherServiceImpl implements CaesarCipherService {
             throw new IOException("Characters in input do not match characters in alphabet.");
         }
         
+        if(!Util.validateAlphabet(alphabet)) {
+            throw new IOException("Alphabet contains same letters.");
+        }
+        
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < openText.length(); ++i) {
             if(Character.isWhitespace(openText.charAt(i))) {

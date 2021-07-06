@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_java_crypto_jni_HillJni
  * Method:    multiplyMatrices
- * Signature: ([[I[[I)[[I
+ * Signature: ([[I[[II)[[I
  */
 JNIEXPORT jobjectArray JNICALL Java_com_java_crypto_jni_HillJni_multiplyMatrices
-  (JNIEnv *, jclass, jobjectArray, jobjectArray);
+  (JNIEnv *, jclass, jobjectArray, jobjectArray, jint);
 
 #ifdef __cplusplus
 }

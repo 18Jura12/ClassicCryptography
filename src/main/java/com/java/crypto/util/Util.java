@@ -14,15 +14,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Util {
     public static boolean validateInput(String input, String alphabet) {
-        log.info("Validate input.");
+        //log.info("Validate input.");
         for(int i = 0; i < input.length(); ++i) {
             if(!alphabet.contains(Character.toString(input.charAt(i))) && !Character.isWhitespace(input.charAt(i))) {
-                log.info("Input incorrect.");
+                //log.info("Input incorrect.");
                 return false;
             }
         }
         
-        log.info("Input correct.");
+        //log.info("Input correct.");
         return true;
     }
     

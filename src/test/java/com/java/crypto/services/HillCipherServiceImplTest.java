@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  *
  * @author user
@@ -35,7 +38,7 @@ public class HillCipherServiceImplTest {
             {10, 20, 17}
         };
         String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        
+
         WordServiceImpl ws = new WordServiceImpl(wordRepository);
         HillCipherServiceImpl instance = new HillCipherServiceImpl(ws);
         
@@ -75,18 +78,16 @@ public class HillCipherServiceImplTest {
     /**
      * Test of decipherWithoutKey method, of class HillCipherServiceImpl.
      */
-    /*
-    @Test
-    public void testDecipherWithoutKey() {
+    /*@Test
+    public void testDecipherWithoutKey() throws Exception {
         System.out.println("decipherWithoutKey");
-        String cipher = "";
-        HillCipherServiceImpl instance = null;
-        List<Result> expResult = null;
+        String cipher = "ČMPTČMETŽK";
+        WordServiceImpl ws = new WordServiceImpl(wordRepository);
+        HillCipherServiceImpl instance = new HillCipherServiceImpl(ws);
+        Result expResult = new Result("MATEMATIKA");
         List<Result> result = instance.decipherWithoutKey(cipher);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+        assertTrue(Arrays.asList(result).contains(expResult));
+    }*/
 
     /**
      * Test of removeWhiteSpaces method, of class HillCipherServiceImpl.
@@ -343,4 +344,17 @@ public class HillCipherServiceImplTest {
         instance.multiplyMatrices(new int[][]{}, new int[][]{});
     }
 
+    @Test
+    void testCheckKeys() {
+    }
+
+    @Test
+    void testCanSplitToWords() {
+
+    }
+
+    @Test
+    void testNextMatrix() {
+
+    }
 }

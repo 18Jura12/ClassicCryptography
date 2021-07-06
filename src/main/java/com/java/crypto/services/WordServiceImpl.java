@@ -35,4 +35,9 @@ public class WordServiceImpl implements WordService {
     public boolean existsByWord(String word) {
         return wordRepository.existsByWord(word);
     }
+
+    @Override
+    public boolean existsByWordAndKind(String word, String kind) {
+        return wordRepository.existsByWordAndKind(word, kind);
+    }
 }

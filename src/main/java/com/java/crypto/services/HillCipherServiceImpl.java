@@ -5,16 +5,29 @@ import com.java.crypto.jni.HillJni;
 import com.java.crypto.util.Util;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import oshi.SystemInfo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class HillCipherServiceImpl implements HillCipherService {
 
     private final WordService wordService;
-    private static final char DUMMY_CHAR = 'X';
+
+    private static final int MAX_MATRIX_VALUE = 5;
+    private static final int[][] LAST_KEY = {
+            {MAX_MATRIX_VALUE - 1, MAX_MATRIX_VALUE - 1},
+            {MAX_MATRIX_VALUE - 1, MAX_MATRIX_VALUE - 1}
+    };
+    private static final String ALPHABET = "ABCČĆDĐEFGHIJKLMNOPRSŠTUVZŽ";
+    private static final int NUMBER_OF_KEYS = ((MAX_MATRIX_VALUE)*(MAX_MATRIX_VALUE+3)*(MAX_MATRIX_VALUE+2)*(MAX_MATRIX_VALUE+1))/(2*3*4);
     
     public int[][] adjMatrix;
 
@@ -38,10 +51,10 @@ public class HillCipherServiceImpl implements HillCipherService {
         key = replaceNegatives(key, alphabet.length());
         
         while(openText.length() % key.length != 0) {
-            openText += DUMMY_CHAR;
+            openText += alphabet.charAt(alphabet.length()-1);
             counter++;
         }
-        log.info("counter: " + Integer.toString(counter));
+        //log.info("counter: " + Integer.toString(counter));
         
         String[] blocks = divideText(openText, key.length);
         int[][] textMatrix = new int[key.length][blocks.length];
@@ -76,10 +89,10 @@ public class HillCipherServiceImpl implements HillCipherService {
         key = replaceNegatives(key, alphabet.length());
         
         while(cipher.length() % key.length != 0) {
-            cipher += DUMMY_CHAR;
+            cipher += alphabet.charAt(alphabet.length()-1);
             counter++;
         }
-        log.info("counter: " + Integer.toString(counter));
+       // log.info("counter: " + Integer.toString(counter));
         
         String[] blocks = divideText(cipher, key.length);
         int[][] textMatrix = new int[key.length][blocks.length];
@@ -99,8 +112,108 @@ public class HillCipherServiceImpl implements HillCipherService {
     }
 
     @Override
-    public List<Result> decipherWithoutKey(String cipher) {
-        return null;
+    public List<Result> decipherWithoutKey(String cipher) throws Exception {
+        int maxThreadNumber = new SystemInfo().getHardware().getProcessor().getLogicalProcessorCount();
+        int h = NUMBER_OF_KEYS / maxThreadNumber;
+        int[][] key = new int[][]{
+                {0, 0},
+                {0, 0}
+        };
+        List<CompletableFuture<List<Result>>> threads = new ArrayList<>();
+        log.info("Initializing threads: " + maxThreadNumber);
+       for(int i = 0; i < maxThreadNumber; i++) {
+           if(i+1 == maxThreadNumber) {
+               threads.add(checkKeys(cipher, key, LAST_KEY));
+           }else {
+               threads.add(checkKeys(cipher, key, nextMatrix(key, h)));
+               key = nextMatrix(key, h);
+           }
+       }
+
+       List<Result> finalResult = new ArrayList<>();
+       CompletableFuture<List<Result>>[] futures = new CompletableFuture[]{};
+       threads.toArray(futures);
+       CompletableFuture
+           .allOf(futures)
+           .thenApply(
+                   future -> {
+                       return  threads.stream()
+                               .map(CompletableFuture::join)
+                               .collect(Collectors.toList());
+                   }
+           ).get().forEach(finalResult::addAll);
+       return finalResult;
+
+    }
+
+    @Async
+    public CompletableFuture<List<Result>> checkKeys(String cipher, int[][] keyFrom, int[][] keyTo) throws Exception {
+        List<Result> results = new ArrayList<>();
+        int count = 0;
+        for(int[][] i = nextMatrix(keyFrom, 1); matricesEqual(i, nextMatrix(keyTo, 1)); i = nextMatrix(i, 1)) {
+            Result tmp;
+            try {
+                tmp = decipher(cipher, i, ALPHABET);
+            } catch (Exception e) {
+                continue;
+            }
+            System.out.println("provjera");
+            if(canSplitToWords(tmp.getResult(), 1)) {
+                results.add(tmp);
+                count++;
+                if(count == 1) {
+                    return CompletableFuture.completedFuture(results);
+                }
+                //return CompletableFuture.completedFuture(results);
+            }
+        }
+        if(keyTo == LAST_KEY) {
+            Result tmp;
+            try {
+                tmp = decipher(cipher, LAST_KEY, ALPHABET);
+            } catch(Exception e) {
+                return CompletableFuture.completedFuture(results);
+            }
+            if(canSplitToWords(tmp.getResult(), 1)) {
+                results.add(tmp);
+            }
+        }
+        return CompletableFuture.completedFuture(results);
+    }
+
+    private boolean matricesEqual(int[][] a, int[][] b) {
+        return Arrays.equals(a[0], b[0]) && Arrays.equals(a[1], b[1]);
+    }
+
+    /*
+    Iterates through matrices yielding next based on given current one.
+     */
+    private int[][] nextMatrix(int[][] currentMatrix, int step) {
+        for(int i = 0; i < step; i++) {
+            currentMatrix[1][1] = (currentMatrix[1][1] + 1) % MAX_MATRIX_VALUE;
+            currentMatrix[1][0] = currentMatrix[1][1] == 0 ? (currentMatrix[1][0] + 1) % MAX_MATRIX_VALUE : currentMatrix[1][0];
+            currentMatrix[0][1] = currentMatrix[1][0] == 0 && currentMatrix[1][1] == 0 ? (currentMatrix[0][1] + 1) % MAX_MATRIX_VALUE : currentMatrix[0][1];
+            currentMatrix[0][0] = currentMatrix[0][1] == 0 && currentMatrix[1][1] == 0 && currentMatrix[1][0] == 0 ? (currentMatrix[0][0] + 1) % MAX_MATRIX_VALUE : currentMatrix[0][0];
+        }
+        return currentMatrix;
+    }
+
+    /*
+    Checks if the result is made of croatian words, by checking the word database.
+     */
+    private boolean canSplitToWords(String result, int count) {
+        if(result.length() == 0) {
+            return true;
+        } else if(result.length() < count) {
+            return false;
+        } else {
+            if(wordService.existsByWord(result.substring(0, count)) && !wordService.existsByWordAndKind(result.substring(0, count), "kratica")) {
+                //System.out.println(wordService.findByWord(result.substring(0, count)));
+                return canSplitToWords(result.substring(count), 1);
+            } else {
+                return canSplitToWords(result, ++count);
+            }
+        }
     }
     
     /*
@@ -154,7 +267,7 @@ public class HillCipherServiceImpl implements HillCipherService {
             for(int j = 0; j< result[i].length; ++j) {
                 s += Integer.toString(result[i][j]) + " ";
             }
-            log.info(s); 
+            //log.info(s);
         }
         
         return result;
@@ -209,7 +322,7 @@ public class HillCipherServiceImpl implements HillCipherService {
         if(modInverse == 0) {
             throw new Exception("Matrix is not invertible with given alphabet length.");
         }
-        log.info(Integer.toString(modInverse));
+       // log.info(Integer.toString(modInverse));
         
         int[][] inverseMatrix = new int[n][n];
         
@@ -220,14 +333,6 @@ public class HillCipherServiceImpl implements HillCipherService {
                 inverseMatrix[i][j] = (Math.floorMod(adjMatrix[i][j], modulo) * modInverse) % modulo; 
             }
         }
-        
-        for(int i = 0; i< inverseMatrix.length; ++i) {
-                    String s = "";
-                    for(int j = 0; j< inverseMatrix[i].length; ++j) {
-                        s += Integer.toString(inverseMatrix[i][j]) + " ";
-                    }
-                    log.info(s); 
-                }
         
         return inverseMatrix;
     }
@@ -303,14 +408,7 @@ public class HillCipherServiceImpl implements HillCipherService {
                 adjMatrix[j][i] = (sign)*(determinant(cofactors, n-1));
             }
         }
-        
-        for(int i = 0; i< cofactors.length; ++i) {
-            String s = "";
-            for(int j = 0; j< cofactors[i].length; ++j) {
-                s += Integer.toString(cofactors[i][j]) + " ";
-            }
-            log.info(s); 
-        }
+
     }
     
     /*

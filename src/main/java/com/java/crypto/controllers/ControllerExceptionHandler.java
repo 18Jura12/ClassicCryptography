@@ -40,7 +40,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(Exception.class)
     ResponseEntity<Object> handle(Exception ex) {
 
-        log.error("Handling IOException: " + ex.getLocalizedMessage());
+        log.error("Handling Exception: " + ex.getLocalizedMessage() + "\n" + ex.toString());
         return new ResponseEntity<>(ex.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
 
     }

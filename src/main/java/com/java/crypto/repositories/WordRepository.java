@@ -14,4 +14,5 @@ public interface WordRepository extends JpaRepository<Word, String> {
     Optional<List<Word>> findAllByWordStartsWith(@Param("part") String part);
     Optional<Word> findByWord(@Param("word") String word);
     boolean existsByWord(@Param("word") String word);
+    boolean existsByWordAndKind(@Param("word") String word, @Param("kind") String kind);
 }

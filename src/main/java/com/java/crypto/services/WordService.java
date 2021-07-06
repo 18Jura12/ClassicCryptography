@@ -9,4 +9,5 @@ public interface WordService {
     List<Word> findWordsStartingWith(String part);
     Word findByWord(String word);
     boolean existsByWord(String word);
+    boolean existsByWordAndKind(String word, String kind);
 }

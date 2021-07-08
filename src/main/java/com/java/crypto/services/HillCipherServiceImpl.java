@@ -12,6 +12,7 @@ import oshi.SystemInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,7 @@ public class HillCipherServiceImpl implements HillCipherService {
 
     private final WordService wordService;
 
-    private static final int MAX_MATRIX_VALUE = 5;
+    private static final int MAX_MATRIX_VALUE = 15;
     private static final int[][] LAST_KEY = {
             {MAX_MATRIX_VALUE - 1, MAX_MATRIX_VALUE - 1},
             {MAX_MATRIX_VALUE - 1, MAX_MATRIX_VALUE - 1}
@@ -164,6 +165,8 @@ public class HillCipherServiceImpl implements HillCipherService {
                                .collect(Collectors.toList());
                    }
            ).get().forEach(finalResult::addAll);
+       finalResult.sort((Result a, Result b)->a.getResult().compareToIgnoreCase(b.getResult()));
+       log.info(String.valueOf(finalResult.size()));
        return finalResult;
 
     }
@@ -172,21 +175,15 @@ public class HillCipherServiceImpl implements HillCipherService {
     public CompletableFuture<List<Result>> checkKeys(String cipher, int[][] keyFrom, int[][] keyTo) throws Exception {
         List<Result> results = new ArrayList<>();
         int count = 0;
-        for(int[][] i = nextMatrix(keyFrom, 1); matricesEqual(i, nextMatrix(keyTo, 1)); i = nextMatrix(i, 1)) {
+        for(int[][] i = nextMatrix(keyFrom, 1); !matricesEqual(i, nextMatrix(keyTo, 1)); i = nextMatrix(i, 1)) {
             Result tmp;
             try {
                 tmp = decipher(cipher, i, ALPHABET);
             } catch (Exception e) {
                 continue;
             }
-            System.out.println("provjera");
             if(canSplitToWords(tmp.getResult(), 1)) {
                 results.add(tmp);
-                count++;
-                if(count == 1) {
-                    return CompletableFuture.completedFuture(results);
-                }
-                //return CompletableFuture.completedFuture(results);
             }
         }
         if(keyTo == LAST_KEY) {
@@ -211,13 +208,14 @@ public class HillCipherServiceImpl implements HillCipherService {
     Iterates through matrices yielding next based on given current one.
      */
     private int[][] nextMatrix(int[][] currentMatrix, int step) {
+        int[][] next = new int[][]{{0, 0},{0, 0}};
         for(int i = 0; i < step; i++) {
-            currentMatrix[1][1] = (currentMatrix[1][1] + 1) % MAX_MATRIX_VALUE;
-            currentMatrix[1][0] = currentMatrix[1][1] == 0 ? (currentMatrix[1][0] + 1) % MAX_MATRIX_VALUE : currentMatrix[1][0];
-            currentMatrix[0][1] = currentMatrix[1][0] == 0 && currentMatrix[1][1] == 0 ? (currentMatrix[0][1] + 1) % MAX_MATRIX_VALUE : currentMatrix[0][1];
-            currentMatrix[0][0] = currentMatrix[0][1] == 0 && currentMatrix[1][1] == 0 && currentMatrix[1][0] == 0 ? (currentMatrix[0][0] + 1) % MAX_MATRIX_VALUE : currentMatrix[0][0];
+            next[1][1] = (currentMatrix[1][1] + 1) % MAX_MATRIX_VALUE;
+            next[1][0] = next[1][1] == 0 ? (currentMatrix[1][0] + 1) % MAX_MATRIX_VALUE : currentMatrix[1][0];
+            next[0][1] = next[1][0] == 0 && next[1][1] == 0 ? (currentMatrix[0][1] + 1) % MAX_MATRIX_VALUE : currentMatrix[0][1];
+            next[0][0] = next[0][1] == 0 && next[1][1] == 0 && next[1][0] == 0 ? (currentMatrix[0][0] + 1) % MAX_MATRIX_VALUE : currentMatrix[0][0];
         }
-        return currentMatrix;
+        return next;
     }
 
     /*
@@ -229,9 +227,22 @@ public class HillCipherServiceImpl implements HillCipherService {
         } else if(result.length() < count) {
             return false;
         } else {
-            if(wordService.existsByWord(result.substring(0, count)) && !wordService.existsByWordAndKind(result.substring(0, count), "kratica")) {
-                //System.out.println(wordService.findByWord(result.substring(0, count)));
-                return canSplitToWords(result.substring(count), 1);
+            if(
+                (
+                    wordService.existsByWord(result.substring(0, count).toLowerCase()) ||
+                    wordService.existsByWord(result.substring(0, 1).toUpperCase() + result.substring(1, count).toLowerCase())
+                ) &&
+                (
+                    !wordService.existsByWordAndKind(result.substring(0, count).toLowerCase(), "kratica") ||
+                    !wordService.existsByWordAndKind(result.substring(0, 1).toUpperCase() + result.substring(1, count).toLowerCase(), "kratica")
+                ) &&
+                (
+                    !(count == 1) ||
+                    wordService.existsByWordAndKind(result.substring(0, count).toLowerCase(), "prijedlog") ||
+                    wordService.existsByWordAndKind(result.substring(0, count).toLowerCase(), "veznik")
+                )
+            ) {
+                return canSplitToWords(result.substring(count), 1) ? true : canSplitToWords(result, ++count);
             } else {
                 return canSplitToWords(result, ++count);
             }

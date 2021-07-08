@@ -23,7 +23,7 @@ public class Word {
 
     public Word(String word, String kind) {
         this.word = word;
-        this.kind = kind;;
+        this.kind = kind;
     }
     
 }

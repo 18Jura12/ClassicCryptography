@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -33,11 +34,14 @@ public class HillCipherServiceImplTest {
     public void testCipher() throws Exception {
         System.out.println("cipher");
         String openText = "utorak";
+        /*
         int[][] key = {
             {5, 8, 22},
             {2, 5, 24},
             {10, 20, 17}
         };
+        */
+        String key = "FIWCFYKUR";
         String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
         WordServiceImpl ws = new WordServiceImpl(wordRepository);
@@ -49,7 +53,7 @@ public class HillCipherServiceImplTest {
         
         //second example
         String openText2 = "encryption";
-        Result expResult2 = new Result("MRWJUVZYQB");
+        Result expResult2 = new Result("MRWJUVZYQJ");
         result = instance.cipher(openText2, key, alphabet);
         assertEquals(expResult2, result);
     }
@@ -61,11 +65,7 @@ public class HillCipherServiceImplTest {
     public void testDecipher() throws Exception {
         System.out.println("decipher");
         String cipher = "poh";
-        int[][] key = {
-            {6, 24, 1},
-            {13, 16, 10},
-            {20, 17, 15}
-        };
+        String key = "GYBNQKURP";
         String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         
         WordServiceImpl ws = new WordServiceImpl(wordRepository);
@@ -306,17 +306,36 @@ public class HillCipherServiceImplTest {
         assertEquals(expResult2, result);
     }
 
-    @Test
-    void testCheckKeys() {
-    }
-
-    @Test
-    void testCanSplitToWords() {
-
-    }
 
     @Test
     void testNextMatrix() {
+        System.out.println("nextMatrix");
+        int[][] currentMatrix = {
+            {1, 2},
+            {5, 7}
+        };
+        int step = 1;
+        int[][] expResult = {
+            {1, 2},
+            {5, 8}
+        };
+        
+        WordServiceImpl ws = new WordServiceImpl(wordRepository);
+        HillCipherServiceImpl instance = new HillCipherServiceImpl(ws);
+        
+        int[][] result = instance.nextMatrix(currentMatrix, step);
+        assertArrayEquals(expResult, result);
 
     }
+
+
+    /**
+     * Test of checkKeys method, of class HillCipherServiceImpl.
+     */
+    @Test
+    public void testCheckKeys() throws Exception {
+        
+    }
+
+
 }

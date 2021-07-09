@@ -23,7 +23,7 @@ public class HillCipherController {
 
     @GetMapping
     @RequestMapping("/cipher")
-    public ResponseEntity<Result> hillCipher(@RequestParam String openText, @RequestParam int[][] key, @RequestParam String alphabet) {
+    public ResponseEntity<Result> hillCipher(@RequestParam String openText, @RequestParam String key, @RequestParam String alphabet) {
         Result response;
         
         try{
@@ -39,7 +39,7 @@ public class HillCipherController {
 
     @GetMapping
     @RequestMapping("/decipher")
-    public ResponseEntity<Result> hillDecipher(@RequestParam String cipher, @RequestParam int[][] key, @RequestParam String alphabet) throws Exception {
+    public ResponseEntity<Result> hillDecipher(@RequestParam String cipher, @RequestParam String key, @RequestParam String alphabet) throws Exception {
         Result response = hillCipherService.decipher(cipher, key, alphabet);
 
         return new ResponseEntity<>(response, HttpStatus.OK);

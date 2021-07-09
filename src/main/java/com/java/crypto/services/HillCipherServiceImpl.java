@@ -22,13 +22,14 @@ public class HillCipherServiceImpl implements HillCipherService {
 
     private final WordService wordService;
 
-    private static final int MAX_MATRIX_VALUE = 15;
+    private static final int MAX_MATRIX_VALUE = 10;
     private static final int[][] LAST_KEY = {
             {MAX_MATRIX_VALUE - 1, MAX_MATRIX_VALUE - 1},
             {MAX_MATRIX_VALUE - 1, MAX_MATRIX_VALUE - 1}
     };
     private static final String ALPHABET = "ABCČĆDĐEFGHIJKLMNOPRSŠTUVZŽ";
     private static final int NUMBER_OF_KEYS = ((MAX_MATRIX_VALUE)*(MAX_MATRIX_VALUE+3)*(MAX_MATRIX_VALUE+2)*(MAX_MATRIX_VALUE+1))/(2*3*4);
+    private static final String LAST_KEY_ALPHABETICAL = "ŽŽŽŽ";
     
     public int[][] adjMatrix;
     static {
@@ -41,8 +42,20 @@ public class HillCipherServiceImpl implements HillCipherService {
     }
 
     @Override
-    public Result cipher(String openText, int[][] key, String alphabet) throws IOException{
+    public Result cipher(String openText, String keyAlphabetical, String alphabet) throws IOException{
         System.load(System.getProperty("user.dir") + "/src/main/resources/native/libhill.so");
+        
+        int dimension = (int)Math.sqrt(keyAlphabetical.length());
+        
+        //create key matrix from given string
+        int[][] key = new int[dimension][dimension];
+        int k = 0;
+        for(int i = 0; i < dimension; ++i) {
+            for(int j = 0; j < dimension; ++j) {
+                key[i][j] = alphabet.indexOf(keyAlphabetical.charAt(k));
+                k++;
+            }   
+        }
         
         openText = openText.toUpperCase();
         alphabet = alphabet.toUpperCase();
@@ -77,10 +90,8 @@ public class HillCipherServiceImpl implements HillCipherService {
             }
         }
         
-        log.info("temp");
         
         int[][] temp = new HillJni().multiplyMatrices(key, textMatrix, alphabet.length());
-        log.info(Integer.toString(temp[0][0]));
         
         textMatrix = new HillJni().multiplyMatrices(key, textMatrix, alphabet.length());
         String result = stringEquivalent(textMatrix, alphabet);
@@ -90,7 +101,21 @@ public class HillCipherServiceImpl implements HillCipherService {
     }
 
     @Override
-    public Result decipher(String cipher, int[][] key, String alphabet) throws Exception{
+    public Result decipher(String cipher, String keyAlphabetical, String alphabet) throws Exception{
+        System.load(System.getProperty("user.dir") + "/src/main/resources/native/libhill.so");
+        
+        int dimension = (int)Math.sqrt(keyAlphabetical.length());
+        
+        //create key matrix from given string
+        int[][] key = new int[dimension][dimension];
+        int k = 0;
+        for(int i = 0; i < dimension; ++i) {
+            for(int j = 0; j < dimension; ++j) {
+                key[i][j] = alphabet.indexOf(keyAlphabetical.charAt(k));
+                k++;
+            }   
+        }
+        
         
         cipher = cipher.toUpperCase();
         alphabet = alphabet.toUpperCase();
@@ -175,8 +200,16 @@ public class HillCipherServiceImpl implements HillCipherService {
         int count = 0;
         for(int[][] i = nextMatrix(keyFrom, 1); !matricesEqual(i, nextMatrix(keyTo, 1)); i = nextMatrix(i, 1)) {
             Result tmp;
+            String keyAlphabetical = "";
+            
+            for(int i1 = 0; i1 < i.length; ++i1) {
+                for(int j1 = 0; j1 < i.length; j1++) {
+                    keyAlphabetical += ALPHABET.charAt(i[i1][j1]);
+                }
+                        
+            }
             try {
-                tmp = decipher(cipher, i, ALPHABET);
+                tmp = decipher(cipher, keyAlphabetical, ALPHABET);
             } catch (Exception e) {
                 continue;
             }
@@ -187,7 +220,7 @@ public class HillCipherServiceImpl implements HillCipherService {
         if(keyTo == LAST_KEY) {
             Result tmp;
             try {
-                tmp = decipher(cipher, LAST_KEY, ALPHABET);
+                tmp = decipher(cipher, LAST_KEY_ALPHABETICAL, ALPHABET);
             } catch(Exception e) {
                 return CompletableFuture.completedFuture(results);
             }
@@ -205,7 +238,7 @@ public class HillCipherServiceImpl implements HillCipherService {
     /*
     Iterates through matrices yielding next based on given current one.
      */
-    private int[][] nextMatrix(int[][] currentMatrix, int step) {
+    public int[][] nextMatrix(int[][] currentMatrix, int step) {
         int[][] next = new int[][]{{0, 0},{0, 0}};
         for(int i = 0; i < step; i++) {
             next[1][1] = (currentMatrix[1][1] + 1) % MAX_MATRIX_VALUE;

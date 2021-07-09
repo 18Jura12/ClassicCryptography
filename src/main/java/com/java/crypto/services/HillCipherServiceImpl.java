@@ -5,16 +5,30 @@ import com.java.crypto.jni.HillJni;
 import com.java.crypto.util.Util;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import oshi.SystemInfo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class HillCipherServiceImpl implements HillCipherService {
 
     private final WordService wordService;
-    private static final char DUMMY_CHAR = 'X';
+
+    private static final int MAX_MATRIX_VALUE = 15;
+    private static final int[][] LAST_KEY = {
+            {MAX_MATRIX_VALUE - 1, MAX_MATRIX_VALUE - 1},
+            {MAX_MATRIX_VALUE - 1, MAX_MATRIX_VALUE - 1}
+    };
+    private static final String ALPHABET = "ABCČĆDĐEFGHIJKLMNOPRSŠTUVZŽ";
+    private static final int NUMBER_OF_KEYS = ((MAX_MATRIX_VALUE)*(MAX_MATRIX_VALUE+3)*(MAX_MATRIX_VALUE+2)*(MAX_MATRIX_VALUE+1))/(2*3*4);
     
     public int[][] adjMatrix;
     static {
@@ -48,10 +62,10 @@ public class HillCipherServiceImpl implements HillCipherService {
         key = replaceNegatives(key, alphabet.length());
         
         while(openText.length() % key.length != 0) {
-            openText += DUMMY_CHAR;
+            openText += alphabet.charAt(alphabet.length()-1);
             counter++;
         }
-        log.info("counter: " + Integer.toString(counter));
+        //log.info("counter: " + Integer.toString(counter));
         
         String[] blocks = divideText(openText, key.length);
         int[][] textMatrix = new int[key.length][blocks.length];
@@ -71,9 +85,7 @@ public class HillCipherServiceImpl implements HillCipherService {
         textMatrix = new HillJni().multiplyMatrices(key, textMatrix, alphabet.length());
         String result = stringEquivalent(textMatrix, alphabet);
         result = result.substring(0, result.length() - counter);
-        
-        log.info(result);
-        
+
         return new Result(result);
     }
 
@@ -98,10 +110,10 @@ public class HillCipherServiceImpl implements HillCipherService {
         key = replaceNegatives(key, alphabet.length());
         
         while(cipher.length() % key.length != 0) {
-            cipher += DUMMY_CHAR;
+            cipher += alphabet.charAt(alphabet.length()-1);
             counter++;
         }
-        log.info("counter: " + Integer.toString(counter));
+       // log.info("counter: " + Integer.toString(counter));
         
         String[] blocks = divideText(cipher, key.length);
         int[][] textMatrix = new int[key.length][blocks.length];
@@ -121,8 +133,118 @@ public class HillCipherServiceImpl implements HillCipherService {
     }
 
     @Override
-    public List<Result> decipherWithoutKey(String cipher) {
-        return null;
+    public List<Result> decipherWithoutKey(String cipher) throws Exception {
+        int maxThreadNumber = new SystemInfo().getHardware().getProcessor().getLogicalProcessorCount();
+        int h = NUMBER_OF_KEYS / maxThreadNumber;
+        int[][] key = new int[][]{
+                {0, 0},
+                {0, 0}
+        };
+        List<CompletableFuture<List<Result>>> threads = new ArrayList<>();
+        log.info("Initializing threads: " + maxThreadNumber);
+       for(int i = 0; i < maxThreadNumber; i++) {
+           if(i+1 == maxThreadNumber) {
+               threads.add(checkKeys(cipher, key, LAST_KEY));
+           }else {
+               threads.add(checkKeys(cipher, key, nextMatrix(key, h)));
+               key = nextMatrix(key, h);
+           }
+       }
+
+       List<Result> finalResult = new ArrayList<>();
+       CompletableFuture<List<Result>>[] futures = new CompletableFuture[]{};
+       threads.toArray(futures);
+       CompletableFuture
+           .allOf(futures)
+           .thenApply(
+                   future -> {
+                       return  threads.stream()
+                               .map(CompletableFuture::join)
+                               .collect(Collectors.toList());
+                   }
+           ).get().forEach(finalResult::addAll);
+       finalResult.sort((Result a, Result b)->a.getResult().compareToIgnoreCase(b.getResult()));
+       log.info(String.valueOf(finalResult.size()));
+       return finalResult;
+
+    }
+
+    @Async
+    public CompletableFuture<List<Result>> checkKeys(String cipher, int[][] keyFrom, int[][] keyTo) throws Exception {
+        List<Result> results = new ArrayList<>();
+        int count = 0;
+        for(int[][] i = nextMatrix(keyFrom, 1); !matricesEqual(i, nextMatrix(keyTo, 1)); i = nextMatrix(i, 1)) {
+            Result tmp;
+            try {
+                tmp = decipher(cipher, i, ALPHABET);
+            } catch (Exception e) {
+                continue;
+            }
+            if(canSplitToWords(tmp.getResult(), 1)) {
+                results.add(tmp);
+            }
+        }
+        if(keyTo == LAST_KEY) {
+            Result tmp;
+            try {
+                tmp = decipher(cipher, LAST_KEY, ALPHABET);
+            } catch(Exception e) {
+                return CompletableFuture.completedFuture(results);
+            }
+            if(canSplitToWords(tmp.getResult(), 1)) {
+                results.add(tmp);
+            }
+        }
+        return CompletableFuture.completedFuture(results);
+    }
+
+    private boolean matricesEqual(int[][] a, int[][] b) {
+        return Arrays.equals(a[0], b[0]) && Arrays.equals(a[1], b[1]);
+    }
+
+    /*
+    Iterates through matrices yielding next based on given current one.
+     */
+    private int[][] nextMatrix(int[][] currentMatrix, int step) {
+        int[][] next = new int[][]{{0, 0},{0, 0}};
+        for(int i = 0; i < step; i++) {
+            next[1][1] = (currentMatrix[1][1] + 1) % MAX_MATRIX_VALUE;
+            next[1][0] = next[1][1] == 0 ? (currentMatrix[1][0] + 1) % MAX_MATRIX_VALUE : currentMatrix[1][0];
+            next[0][1] = next[1][0] == 0 && next[1][1] == 0 ? (currentMatrix[0][1] + 1) % MAX_MATRIX_VALUE : currentMatrix[0][1];
+            next[0][0] = next[0][1] == 0 && next[1][1] == 0 && next[1][0] == 0 ? (currentMatrix[0][0] + 1) % MAX_MATRIX_VALUE : currentMatrix[0][0];
+        }
+        return next;
+    }
+
+    /*
+    Checks if the result is made of croatian words, by checking the word database.
+     */
+    private boolean canSplitToWords(String result, int count) {
+        if(result.length() == 0) {
+            return true;
+        } else if(result.length() < count) {
+            return false;
+        } else {
+            if(
+                (
+                    wordService.existsByWord(result.substring(0, count).toLowerCase()) ||
+                    wordService.existsByWord(result.substring(0, 1).toUpperCase() + result.substring(1, count).toLowerCase())
+                ) &&
+                (
+                    !wordService.existsByWordAndKind(result.substring(0, count).toLowerCase(), "kratica") ||
+                    !wordService.existsByWordAndKind(result.substring(0, 1).toUpperCase() + result.substring(1, count).toLowerCase(), "kratica")
+                ) &&
+                (
+                    !(count == 1) ||
+                    wordService.existsByWordAndKind(result.substring(0, count).toLowerCase(), "prijedlog") ||
+                    wordService.existsByWordAndKind(result.substring(0, count).toLowerCase(), "veznik")
+                )
+            ) {
+                return canSplitToWords(result.substring(count), 1) ? true : canSplitToWords(result, ++count);
+            } else {
+                return canSplitToWords(result, ++count);
+            }
+        }
     }
     
     /*
@@ -155,6 +277,31 @@ public class HillCipherServiceImpl implements HillCipherService {
         }
         
         return block;
+    }
+    
+    /*
+    Function which muliplies two matrices.
+    */
+    public int[][] multiply(int[][] numEquivalents, int[][] key, int modulo) {
+        int[][] result = new int[key.length][numEquivalents[0].length];
+        
+        for(int i = 0; i < key.length; ++i) {
+            for(int j = 0; j < numEquivalents[i].length; ++j) {
+                for(int k = 0; k < key.length; ++k) {
+                    result[i][j] = (result[i][j] + key[i][k] * numEquivalents[k][j]) % modulo;
+                }
+            }
+        }
+        
+        for(int i = 0; i< result.length; ++i) {
+            String s = "";
+            for(int j = 0; j< result[i].length; ++j) {
+                s += Integer.toString(result[i][j]) + " ";
+            }
+            //log.info(s);
+        }
+        
+        return result;
     }
     
     /*
@@ -206,7 +353,7 @@ public class HillCipherServiceImpl implements HillCipherService {
         if(modInverse == 0) {
             throw new Exception("Matrix is not invertible with given alphabet length.");
         }
-        log.info(Integer.toString(modInverse));
+       // log.info(Integer.toString(modInverse));
         
         int[][] inverseMatrix = new int[n][n];
         
@@ -217,14 +364,6 @@ public class HillCipherServiceImpl implements HillCipherService {
                 inverseMatrix[i][j] = (Math.floorMod(adjMatrix[i][j], modulo) * modInverse) % modulo; 
             }
         }
-        
-        for(int i = 0; i< inverseMatrix.length; ++i) {
-                    String s = "";
-                    for(int j = 0; j< inverseMatrix[i].length; ++j) {
-                        s += Integer.toString(inverseMatrix[i][j]) + " ";
-                    }
-                    log.info(s); 
-                }
         
         return inverseMatrix;
     }
@@ -300,14 +439,7 @@ public class HillCipherServiceImpl implements HillCipherService {
                 adjMatrix[j][i] = (sign)*(determinant(cofactors, n-1));
             }
         }
-        
-        for(int i = 0; i< cofactors.length; ++i) {
-            String s = "";
-            for(int j = 0; j< cofactors[i].length; ++j) {
-                s += Integer.toString(cofactors[i][j]) + " ";
-            }
-            log.info(s); 
-        }
+
     }
     
     /*

@@ -47,7 +47,7 @@ public class HillCipherController {
 
     @GetMapping
     @RequestMapping("/decipherNoKey")
-    public ResponseEntity<List<Result>> hillDecipher(@RequestParam String cipher) {
+    public ResponseEntity<List<Result>> hillDecipher(@RequestParam String cipher) throws Exception {
         List<Result> response = hillCipherService.decipherWithoutKey(cipher);
 
         return new ResponseEntity<>(response, HttpStatus.OK);

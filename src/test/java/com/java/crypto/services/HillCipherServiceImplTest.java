@@ -74,21 +74,8 @@ public class HillCipherServiceImplTest {
         Result expResult = new Result("ACT");
         Result result = instance.decipher(cipher, key, alphabet);
         assertEquals(expResult, result);
+        
     }
-
-    /**
-     * Test of decipherWithoutKey method, of class HillCipherServiceImpl.
-     */
-    /*@Test
-    public void testDecipherWithoutKey() throws Exception {
-        System.out.println("decipherWithoutKey");
-        String cipher = "ČMPTČMETŽK";
-        WordServiceImpl ws = new WordServiceImpl(wordRepository);
-        HillCipherServiceImpl instance = new HillCipherServiceImpl(ws);
-        Result expResult = new Result("MATEMATIKA");
-        List<Result> result = instance.decipherWithoutKey(cipher);
-        assertTrue(Arrays.asList(result).contains(expResult));
-    }*/
 
     /**
      * Test of removeWhiteSpaces method, of class HillCipherServiceImpl.

@@ -95,7 +95,7 @@ public class HillCipherServiceImpl implements HillCipherService {
         
         textMatrix = new HillJni().multiplyMatrices(key, textMatrix, alphabet.length());
         String result = stringEquivalent(textMatrix, alphabet);
-        result = result.substring(0, result.length() - counter);
+        //result = result.substring(0, result.length() - counter);
 
         return new Result(result);
     }
@@ -152,6 +152,7 @@ public class HillCipherServiceImpl implements HillCipherService {
         
         textMatrix = new HillJni().multiplyMatrices(inverse(key, alphabet.length()), textMatrix, alphabet.length());
         String result = stringEquivalent(textMatrix, alphabet);
+        log.info(result);
         result = result.substring(0, result.length() - counter);
         
         return new Result(result);
@@ -264,7 +265,7 @@ public class HillCipherServiceImpl implements HillCipherService {
                     wordService.existsByWord(result.substring(0, 1).toUpperCase() + result.substring(1, count).toLowerCase())
                 ) &&
                 (
-                    !wordService.existsByWordAndKind(result.substring(0, count).toLowerCase(), "kratica") ||
+                    !wordService.existsByWordAndKind(result.substring(0, count).toLowerCase(), "kratica") &&
                     !wordService.existsByWordAndKind(result.substring(0, 1).toUpperCase() + result.substring(1, count).toLowerCase(), "kratica")
                 ) &&
                 (
